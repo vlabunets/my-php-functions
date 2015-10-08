@@ -1,0 +1,77 @@
+// Ajax scroll post
+add_action('wp_ajax_get_scroll', 'wp_ajax_get_scroll');
+add_action('wp_ajax_nopriv_get_scroll', 'wp_ajax_get_scroll');
+function wp_ajax_get_scroll(){
+
+  $id = $_POST['id']; 
+  $length = $_POST['count'];
+  $sum =  $_POST['count'] + 8;
+  
+  $args = array(
+    'post_type' => 'post',
+    'posts_per_page' => $sum,
+    'order'=>'DESC',
+	'post_status' => 'publish'
+  );
+  
+  if($id != 0) {
+    $args['cat'] = $id;
+  }
+		$query = new WP_Query( $args );
+                
+		$counter = 1;
+		$i = 1; echo '<div class="post-row">'; 
+		while ( $query->have_posts() ) {
+		$query->the_post(); 
+		$categories = get_the_category();
+		global $post;
+			if( $counter > $length){ ?>
+        
+                <li class="<?php echo $categories[0]->name; ?> <?php echo get_the_ID();?> listing">
+                                
+                    <div class="wrap">
+                        <div class="heading">
+                            <h3><a href="/<?php echo $categories[0]->slug; ?>"><?php echo $categories[0]->name; ?></a></h3>
+                            <div class="meta-author">
+                                <span class="author">
+                                    <a href="<?php echo get_author_posts_url( get_the_author_meta( 'ID' ) ); ?>"><?php echo get_the_author_meta( 'first_name' ); ?> <?php echo get_the_author_meta( 'last_name' ); ?></a>
+                                </span>
+                                <span class="time">
+                                    <?php the_time('m-d-y'); ?>
+                                </span>
+                            </div>
+                        </div>
+                        <?php if ( has_post_thumbnail() ) { ?>
+                           <a href="<?php the_permalink(); ?>"><?php the_post_thumbnail( array(435, 246)); ?></a>
+                        <?php } ?>
+                        <h4 class="entry-title">
+                            <a href="<?php the_permalink(); ?>" class="post-title">
+                                    <?php the_title(); ?>
+                            </a>
+                        </h4>
+			       			<?php if ( ! has_excerpt() ) { ?>
+							      <p ><?php echo substr(strip_tags($post->post_content), 0, 280);?></p>
+							<?php } else { ?>
+							      <p ><?php echo substr(strip_tags($post->post_excerpt), 0, 280);?></p>
+							<?php } ?>
+			       	       
+			       			<div class="links">
+								<a href="<?php the_permalink(); ?>" class="read">READ MORE</a>
+								<div class="share">
+									<span class='st_facebook' displayText='Facebook' st_title='<?php the_title(); ?>' st_url='<?php the_permalink(); ?>' wordpress_url='dankslate.com'></span>
+									<span class='st_twitter' displayText='Tweet' st_title='<?php the_title(); ?>' st_url='<?php the_permalink(); ?>' wordpress_url='dankslate.com'></span>
+									<span class='st_googleplus' displayText='Google +' st_title='<?php the_title(); ?>' st_url='<?php the_permalink(); ?>' wordpress_url='dankslate.com'></span>
+								</div>
+							</div>
+			       	</div>
+			    </li>
+
+			<?php 
+				if($i % 8 == 0) { echo '</div>'; } $i++;
+				};
+			$counter++;
+		}; 
+		wp_reset_postdata();?>
+
+	<?php wp_die();
+} 
