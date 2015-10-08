@@ -1,0 +1,11 @@
+//put it into functions.php
+
+function my_scripts_method() {
+	// отменяем зарегистрированный jQuery
+	// вместо "jquery-core" просто "jquery", чтобы отключить jquery-migrate
+	wp_deregister_script( 'jquery-core' );
+	wp_register_script( 'jquery-core', '//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js');
+	wp_enqueue_script( 'jquery' );
+}    
+
+add_action( 'wp_enqueue_scripts', 'my_scripts_method' );
