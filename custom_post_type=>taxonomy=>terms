@@ -1,0 +1,86 @@
+/**
+** Get custom category term posts ( custom post type => taxonomy => terms )
+**/
+
+<?php 
+  // catigories
+  $cat_args = array(
+      'type' => 'country',
+      'exclude' => "",
+      'taxonomy' => 'workshop-country',
+      'orderby' => 'ASC'
+  );
+?>
+
+<?php $categories = get_categories($cat_args);
+// for dump
+//    echo "<pre>";
+//        print_r($categories);
+//    echo "</pre>";
+//    echo '<hr>';    
+?>
+
+<?php
+if ($categories) {
+    foreach ($categories as $category) {
+        //echo $category->slug;
+        $args = array(
+            'post_type' => 'country',
+            'posts_per_page' => -1,
+            'tax_query' => array(
+                array(
+                    'taxonomy' => 'workshop-country',
+                    'field' => 'slug',
+                    'terms' => $category->slug,
+                ),
+            ),
+        );
+        
+?>
+
+// page output
+<?php $myposts = get_posts( $args ); ?>
+<h4><?php echo $category->name; ?>:</h4>
+    <?php foreach ( $myposts as $post ) : 
+        setup_postdata( $post ); ?>
+        
+        <div id="workshop_<?php echo $category->name; ?>" class="workshops-regions">
+            <article>
+                <div class="inner">
+                    <?php if (have_rows('region')): ?> 
+                        <h3><?php the_title(); ?></h3>
+
+                        <?php while (have_rows('region')) : the_row(); ?>
+                            <div class="col-33">
+                                <div class="workshops-regions-content">
+                                    <a href="<?php the_sub_field('workshop_region_link'); ?>" target="_blank">
+                                        <div class="workshops-online-img">
+                                            <img src="<?php the_field('mark_icon'); ?>" alt=""/>
+                                        </div>
+                                        <div class="workshops-regions-content-inner">
+                                            <div>
+                                                <strong><?php the_sub_field('workshop_region_title'); ?></strong>
+                                            </div>
+                                            <div class="workshops-online-date">
+                                                <p><?php the_sub_field('workshop_region_date'); ?></p>
+                                            </div>
+                                            <div class="workshops-online-details">
+                                                <p><?php the_sub_field('workshop_region_details'); ?></p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        <?php endwhile; ?>     
+                    <?php endif; ?>
+                </div>
+            </article>
+        </div>
+
+    <?php endforeach; ?>
+        <?php wp_reset_postdata(); ?> 
+		
+    <?php     
+    }
+}
+?>
